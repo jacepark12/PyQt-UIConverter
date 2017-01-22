@@ -20,7 +20,7 @@ class Ui_MainWindow(object):
 
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(528, 412)
+        MainWindow.resize(791, 412)
         self.mainwindow= MainWindow
         self.centralWidget = QtWidgets.QWidget(MainWindow)
         self.centralWidget.setObjectName("centralWidget")
@@ -52,6 +52,9 @@ class Ui_MainWindow(object):
         self.textBrowser_3 = QtWidgets.QTextBrowser(self.centralWidget)
         self.textBrowser_3.setGeometry(QtCore.QRect(80, 20, 381, 31))
         self.textBrowser_3.setObjectName("textBrowser_3")
+        self.log = QtWidgets.QTextBrowser(self.centralWidget)
+        self.log.setGeometry(QtCore.QRect(520, 20, 256, 301))
+        self.log.setObjectName("log")
         MainWindow.setCentralWidget(self.centralWidget)
         self.menuBar = QtWidgets.QMenuBar(MainWindow)
         self.menuBar.setGeometry(QtCore.QRect(0, 0, 528, 22))
@@ -104,12 +107,21 @@ class Ui_MainWindow(object):
         self.setconfig('Dir', 'Output', self.outputdir)
 
     def convert(self):
-        # conveted file name is equivalent to input ui file
-        self.outputdir += '/' + self.uifile.split('/')[-1].replace('.ui', '.py')
+        #if output file name is not set
+        if '.py' not in self.outputfile.split('/')[-1]:
+            # conveted file name is equivalent to input ui file
+            self.outputfile += '/' + self.uifile.split('/')[-1].replace('.ui', '.py')
 
-        print('outputdir : ' , self.outputdir)
-        cmd = 'pyuic5 -x %s -o %s' %(self.uifile, self.outputdir)
-        os.system(cmd)
+        print('outputdir : ' , self.outputfile)
+        cmd = 'pyuic5 -x %s -o %s' %(self.uifile, self.outputfile)
+
+        try:
+            result = os.popen(cmd).read()
+        except:
+            result = 'Error Catched'
+
+        self.setLog('Converted %s' % self.uifile)
+
 
     def setconfig(self, section, key, value):
 
@@ -142,6 +154,9 @@ class Ui_MainWindow(object):
         # dislplay
         self.uifiledirText.setText(self.uifile)
         self.outputdirText.setText(self.outputfile)
+
+    def setLog(self, input):
+        self.log.setText(input)
 
 if __name__ == "__main__":
     import sys, os
