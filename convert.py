@@ -8,6 +8,7 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 import os
+import configparser
 
 class Ui_MainWindow(object):
 
@@ -15,6 +16,7 @@ class Ui_MainWindow(object):
         super().__init__()
         self.uifile =''
         self.outputdir = ''
+        self.bundle_dir = ''
 
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
@@ -90,10 +92,16 @@ class Ui_MainWindow(object):
         # set dir to textbox
         self.uifiledirText.setText(self.uifile)
 
+        #save to config file
+        self.setconfig('Dir', 'Input', self.uifile)
+
     def getOutputDirectory(self):
         self.outputdir = QtWidgets.QFileDialog.getExistingDirectory(self.mainwindow, 'Output Directory', './')
         # set dir to textbox
         self.outputdirText.setText(self.outputdir)
+
+        #save to config file
+        self.setconfig('Dir', 'Output', self.outputdir)
 
     def convert(self):
         # conveted file name is equivalent to input ui file
@@ -103,13 +111,55 @@ class Ui_MainWindow(object):
         cmd = 'pyuic5 -x %s -o %s' %(self.uifile, self.outputdir)
         os.system(cmd)
 
+    def setconfig(self, section, key, value):
+
+        config_reader = configparser.ConfigParser()
+        config_writer = config_reader
+        config_reader.read(self.bundle_dir + '/config/resource.config')
+
+        # check existing sections
+        if section not in config_reader.sections():
+            config_writer.add_section(section)
+
+        # Add key & values to section
+        config_writer.set(section, key, value)
+
+        # write to file
+        with open(self.bundle_dir + '/config/resource.config', 'w') as configfile:
+            config_writer.write(configfile)
+
+    def getConfig(self, section, key):
+        print('getConfig method : ', self.bundle_dir)
+        config = configparser.ConfigParser()
+        config.read(self.bundle_dir + '/config/resource.config')
+        print(config.sections())
+        return config.get(section, key)
+
+    def initDir(self):
+        self.uifile = self.getConfig('Dir', 'Input')
+        self.outputfile = self.getConfig('Dir', 'Output')
+
+        # dislplay
+        self.uifiledirText.setText(self.uifile)
+        self.outputdirText.setText(self.outputfile)
 
 if __name__ == "__main__":
-    import sys
+    import sys, os
+    if getattr(sys, 'frozen', False):
+        # we are running in a bundle
+        bundle_dir = sys._MEIPASS
+    else:
+        # we are running in a normal Python environment
+        bundle_dir = os.path.dirname(os.path.abspath(__file__))
+        print(bundle_dir)
+
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
     ui = Ui_MainWindow()
     ui.setupUi(MainWindow)
+    ui.bundle_dir = bundle_dir
+    ui.initDir()
     MainWindow.show()
     sys.exit(app.exec_())
+
 
