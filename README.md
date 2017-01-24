@@ -16,6 +16,67 @@ You can execute convert.py directly, or download converter.pkg to run on OSX.
 
 Window, Linux will be supported soon.
 
+### How to build executable file
+
+pyQt applications can be build to executable file by pyinstaller.
+
+pyinstaller requires .spec file to generate executable file. /convert.spec file in this repository is for pyinstaller.
+
+If you want to use pyinstaller for this application, you have to change the directories in convert.spec
+
+Change pathex, datas value in below file. 
+
+convert.spec)
+
+~~~
+# -*- mode: python -*-
+
+block_cipher = None
+
+
+a = Analysis(['convert.py'],
+             pathex=['/Users/parkjaesung/Documents/workspace/Github/pyQt-UIConverter'],
+             binaries=[],
+             datas=[('/Users/parkjaesung/Documents/workspace/Github/pyQt-UIConverter/config/', 'config')],
+             hiddenimports=[],
+             hookspath=[],
+             runtime_hooks=[],
+             excludes=[],
+             win_no_prefer_redirects=False,
+             win_private_assemblies=False,
+             cipher=block_cipher)
+pyz = PYZ(a.pure, a.zipped_data,
+             cipher=block_cipher)
+exe = EXE(pyz,
+          a.scripts,
+          exclude_binaries=True,
+          name='convert',
+          debug=False,
+          strip=False,
+          upx=True,
+          console=False , icon='ndowed')
+coll = COLLECT(exe,
+               a.binaries,
+               a.zipfiles,
+               a.datas,
+               strip=False,
+               upx=True,
+               name='convert')
+app = BUNDLE(coll,
+             name='convert.app',
+             icon='ndowed',
+             bundle_identifier=None)
+
+~~~
+
+Then, run below command.
+
+~~~
+pyinstaller convert.spec
+~~~
+
+
+
 ### Developer
 
 * ParkJaesung
