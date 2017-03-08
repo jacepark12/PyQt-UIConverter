@@ -10,18 +10,19 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 import os
 import configparser
 
-class Ui_MainWindow(object):
 
+class Ui_MainWindow(object):
     def __init__(self):
         super().__init__()
-        self.uifile =''
+        self.uifile = ''
         self.outputdir = ''
+        self.tempdir = ''
         self.bundle_dir = ''
 
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(791, 412)
-        self.mainwindow= MainWindow
+        self.mainwindow = MainWindow
         self.centralWidget = QtWidgets.QWidget(MainWindow)
         self.centralWidget.setObjectName("centralWidget")
         self.frame = QtWidgets.QFrame(self.centralWidget)
@@ -81,21 +82,22 @@ class Ui_MainWindow(object):
         self.uifilebutton.setText(_translate("MainWindow", "QtDesigner UI file"))
         self.outputbutton.setText(_translate("MainWindow", "Output directory"))
         self.pushButton_3.setText(_translate("MainWindow", "Convert Right Away!"))
-        self.textBrowser_3.setHtml(_translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
-"p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:\'.SF NS Text\'; font-size:13pt; font-weight:400; font-style:normal;\">\n"
-"<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">QtDesigner To Python file. Just press a button!</p></body></html>"))
+        self.textBrowser_3.setHtml(_translate("MainWindow",
+                                              "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+                                              "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+                                              "p, li { white-space: pre-wrap; }\n"
+                                              "</style></head><body style=\" font-family:\'.SF NS Text\'; font-size:13pt; font-weight:400; font-style:normal;\">\n"
+                                              "<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">QtDesigner To Python file. Just press a button!</p></body></html>"))
 
     # PyQt event handling code
     # TODO extract as a module
 
     def getUIFile(self):
-        self.uifile ,_ = QtWidgets.QFileDialog.getOpenFileName(self.mainwindow, 'Open UI File', './', filter='*.ui')
+        self.uifile, _ = QtWidgets.QFileDialog.getOpenFileName(self.mainwindow, 'Open UI File', './', filter='*.ui')
         # set dir to textbox
         self.uifiledirText.setText(self.uifile)
 
-        #save to config file
+        # save to config file
         self.setconfig('Dir', 'Input', self.uifile)
 
     def getOutputDirectory(self):
@@ -103,25 +105,26 @@ class Ui_MainWindow(object):
         # set dir to textbox
         self.outputdirText.setText(self.outputdir)
 
-        #save to config file
+        # save to config file
         self.setconfig('Dir', 'Output', self.outputdir)
 
     def convert(self):
-        #if output file name is not set
+        # if output file name is not set
         if '.py' not in self.outputfile.split('/')[-1]:
-            # conveted file name is equivalent to input ui file
+            # converted file name is equivalent to input ui file
             self.outputfile += '/' + self.uifile.split('/')[-1].replace('.ui', '.py')
 
-        print('outputdir : ' , self.outputfile)
-        cmd = 'pyuic5 -x %s -o %s' %(self.uifile, self.outputfile)
+        print('outputdir : ', self.outputfile)
+        cmd = 'pyuic5 -x %s -o %s' % (self.uifile, self.outputfile) #여기서 실제로 ui파일을 py로 바꿈
 
         try:
             result = os.popen(cmd).read()
         except:
             result = 'Error Catched'
 
-        self.setLog('Converted %s' % self.uifile)
+        #이제 병합하는 로직을 짜야함!!!!!!!!!!!!!
 
+        self.setLog('Converted %s' % self.uifile)
 
     def setconfig(self, section, key, value):
 
@@ -158,8 +161,10 @@ class Ui_MainWindow(object):
     def setLog(self, input):
         self.log.setText(input)
 
+
 if __name__ == "__main__":
     import sys, os
+
     if getattr(sys, 'frozen', False):
         # we are running in a bundle
         bundle_dir = sys._MEIPASS
@@ -176,5 +181,3 @@ if __name__ == "__main__":
     ui.initDir()
     MainWindow.show()
     sys.exit(app.exec_())
-
-
