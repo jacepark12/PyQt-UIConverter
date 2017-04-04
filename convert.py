@@ -119,12 +119,14 @@ class Ui_MainWindow(object):
 
         try:
             result = os.popen(cmd).read()
+            self.setLog('Convert log %s Converted %s' % (result, self.uifile))
         except:
             result = 'Error Catched'
+            self.setLog(result)
 
         #이제 병합하는 로직을 짜야함!!!!!!!!!!!!!
 
-        self.setLog('Converted %s' % self.uifile)
+
 
     def setconfig(self, section, key, value):
 
